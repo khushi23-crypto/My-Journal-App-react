@@ -7,6 +7,12 @@ function App() {
   const [text, setText] = useState("");
   const [category, setCategory] = useState("Personal");
   const [filterCategory, setFilterCategory] = useState("All");
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+
+  const correctPassword = "kajal123"; 
+
   useEffect(() => {
     const savedEntries = localStorage.getItem("journalEntries");
     if (savedEntries) {
@@ -17,6 +23,15 @@ function App() {
   useEffect(() => {
     localStorage.setItem("journalEntries", JSON.stringify(entries));
   }, [entries]);
+
+  const handleLogin = () => {
+    if (passwordInput === correctPassword) {
+      setIsAuthenticated(true);
+      toast.success("🔓 Journal Unlocked!", { autoClose: 2000 });
+    } else {
+      toast.error("❌ Wrong Password!", { autoClose: 2000 });
+    }
+  };
 
   const handleAdd = () => {
     if (text.trim() === "") return;
@@ -31,28 +46,12 @@ function App() {
     setEntries([...entries, newEntry]);
     setText("");
     setCategory("Personal");
-    toast("💖 Yay! New journal added!", {
-      position: "top-right",
-      autoClose: 2000,
-      style: {
-        background: "#ffe4f2",
-        color: "#d63384",
-        fontWeight: "bold",
-      }
-    },);
+    toast.success("New entry added ✅", { autoClose: 2000 });
   };
 
   const handleDelete = (id) => {
     setEntries(entries.filter((entry) => entry.id !== id));
-    toast("🗑 Entry deleted!", {
-      position: "top-right",
-      autoClose: 2000,
-      style: {
-        background: "#e0f7ff",
-        color: "#0d6efd",
-        fontWeight: "bold",
-      },
-    });
+    toast.success("Entry deleted 🗑", { autoClose: 2000 });
   };
 
   const filteredEntries =
@@ -60,14 +59,46 @@ function App() {
       ? entries
       : entries.filter((entry) => entry.category === filterCategory);
 
+  if (!isAuthenticated) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-100">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-80 text-center">
+          <h2 className="text-xl font-bold mb-4">🔐 Enter Password</h2>
+          <input
+            type="password"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            placeholder="Enter password"
+            className="w-full p-3 border rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <button
+            onClick={handleLogin}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition duration-200"
+          >
+            Unlock Journal
+          </button>
+          <ToastContainer />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-xl mx-auto p-6 bg-slate-400 mt-10 rounded-3xl">
+    <div className="max-w-xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4 text-center">📔 My Journal App</h1>
+
+      <textarea
+        rows="4"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Write your thoughts..."
+        className="w-full p-3 border rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
 
       <select
         value={category}
         onChange={(e) => setCategory(e.target.value)}
-        className="w-full p-3 border rounded-lg mb-3 bg-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="w-full p-3 border rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
       >
         <option value="Personal">Personal</option>
         <option value="Work">Work</option>
@@ -76,17 +107,9 @@ function App() {
         <option value="Other">Other</option>
       </select>
 
-      <textarea
-        rows="10"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Write your thoughts..."
-        className="w-full p-3 border rounded-lg mb-3 bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-      />
-
       <button
         onClick={handleAdd}
-        className="bg-pink-900 hover:bg-pink-500 text-white px-4 py-2 rounded-lg shadow-md transition duration-200"
+        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition duration-200"
       >
         Add Entry
       </button>
@@ -113,11 +136,11 @@ function App() {
             key={entry.id}
             className="border border-gray-300 rounded-lg p-4 shadow-sm"
           >
-            <p className="text-gray-800 flex ">{entry.text}</p>
-            <span className="inline-block mt-1 text-sm px-2 py-1 bg-blue-200 text-blue-900 rounded-md ">
+            <p className="text-gray-800">{entry.text}</p>
+            <span className="inline-block mt-1 text-sm px-2 py-1 bg-blue-100 text-blue-600 rounded-md">
               {entry.category}
             </span>
-            <small className="block text-gray-900">{entry.date}</small>
+            <small className="block text-gray-500">{entry.date}</small>
             <button
               onClick={() => handleDelete(entry.id)}
               className="mt-2 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm"
@@ -128,7 +151,7 @@ function App() {
         ))}
 
         {filteredEntries.length === 0 && (
-          <p className="text-center text-gray-500">No entries found.</p>
+          <p className="text-center text-gray-900">No entries found.</p>
         )}
       </div>
 
