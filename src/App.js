@@ -1,5 +1,6 @@
 import { useState } from "react";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   const [entries, setEntries] = useState([]);
   const [text, setText] = useState("");
@@ -21,6 +22,7 @@ function App() {
   
   const handleDelete = (id) => {
     setEntries(entries.filter((entry) => entry.id !== id));
+    toast.success('Entry deleted successfully! 🗑') 
   };
 
   return (
@@ -53,14 +55,17 @@ function App() {
             <p className="text-gray-800">{entry.text}</p>
             <small className="block text-gray-500">{entry.date}</small>
             <button
-              onClick={() => handleDelete(entry.id)}
+              onClick={() => handleDelete(entry.id)
+               
+              }
               className="mt-2 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm"
-            >
+             >
               ❌ Delete
             </button>
           </div>
         ))}
       </div>
+      <ToastContainer/>
     </div>
   );
 }
